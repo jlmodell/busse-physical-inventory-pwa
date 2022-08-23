@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model physical_inventory_2022_lots {
+  lot         String @id @unique(map: "lot_index") @db.VarChar(20)
+  part        String @db.VarChar(50)
+  on_hand_qty Int
+
+  @@index([part], map: "part_index")
+}
+
+model physical_inventory_2022_rows {
+  row                            Int                            @id(map: "physical_inventory_2022_pkey") @unique(map: "row_index")
+  sheet                          Int
+  part                           String                         @db.VarChar(30)
+  lot                            String?                        @db.VarChar(20)
+  quantity                       Int
+  uom                            String                         @db.VarChar(10)
+  total                          Int
+  last_modified_by               String                         @db.VarChar(50)
+  last_modified_at               DateTime                       @db.Timestamp(6)
+  physical_inventory_2022_sheets physical_inventory_2022_sheets @relation(fields: [sheet], references: [sheet], onDelete: NoAction, onUpdate: NoAction, map: "sheet_relationship")
+}
+
+model physical_inventory_2022_sheets {
+  sheet                        Int                            @id(map: "unique_sheet") @unique(map: "sheet_index")
+  owner                        String?                        @db.VarChar(50)
+  location                     String?                        @db.VarChar(50)
+  last_modified_at             DateTime                       @db.Timestamp(6)
+  last_modified_by             String                         @db.VarChar(50)
+  completed                    Boolean                        @default(false)
+  physical_inventory_2022_rows physical_inventory_2022_rows[]
+}
+
+model rebatetracing_rosters {
+  uuid       String  @id @db.Uuid
+  group_name String
+  member_id  String
+  name       String
+  address    String
+  city       String?
+  state      String?
+  postal     String
+
+  @@index([group_name], map: "group_index")
+  @@index([member_id], map: "member_id_index")
+}
+
+model stytch {
+  name      String?
+  email     String  @id @unique(map: "email_idx")
+  stytch_id String?
+}
